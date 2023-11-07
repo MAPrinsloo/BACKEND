@@ -3,10 +3,15 @@ const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const {User} = require('../models/user');
 const {isValidPassword} = require('../utils/hash');
+//Brute force protection method
+const ExpressBrute = require('express-brute');
+//in store memory for persisting request counts
+const store = new ExpressBrute.MemoryStore();
+const bruteforce = new ExpressBrute(store);
 
 //Login route
-router.post('/', async (req, res) => {
-    
+router.post('/', bruteforce.prevent, async (req, res) => {
+
     //See if the username entered exists in the DB
     const user = await User.findOne({username: req.body.username});
     if (!user)

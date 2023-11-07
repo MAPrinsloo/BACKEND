@@ -4,9 +4,12 @@ const express = require('express');
 const app = express();
 const https = require('https');
 const fs = require('fs');
+const helmet = require('helmet');
 const cors = require('cors');
 const hsts = require('./middleware/hsts');
 const mongoose = require('mongoose');
+const morgan = require('morgan');
+
 
 //DB
 mongoose
@@ -14,7 +17,7 @@ mongoose
     .then(()=> console.log('Db connected...'));
 
 //Middleware
-app.use(cors({origin:'https://localhost:3000',optionsSuccessStatus:200}))
+app.use(cors({origin:'https://localhost:4200',optionsSuccessStatus:200}))
 app.use(express.json());
 app.use(hsts);
 
@@ -27,6 +30,12 @@ app.use((reg,res,next)=>
     next();
 })
 
+//morgan
+app.use(morgan('dev'));
+
+//helmet
+app.use(helmet());
+
 //Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users',require('./routes/users'));
@@ -36,8 +45,8 @@ app.use('/api/posts', require('./routes/posts'));
 https
     .createServer(
         {
-            key: fs.readFileSync('./keys/privatekey.pem'),
-            cert: fs.readFileSync('./keys/certificate.pem'),
+            key: fs.readFileSync('../keys/privatekey.pem'),
+            cert: fs.readFileSync('../keys/certificate.pem'),
         },
         app
     )
